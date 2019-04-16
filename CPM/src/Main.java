@@ -1,8 +1,5 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class Main {
@@ -13,16 +10,24 @@ public class Main {
     private static HashMap<String, List<String>> taskParents = new HashMap<String, List<String>>();
     private static HashMap<String, List<String>> taskChildren = new HashMap<String, List<String>>();
     private static HashMap<String, Integer> taskTime = new HashMap<String, Integer>();
+    private static HashMap<String, Boolean> criticalPath = new HashMap<String, Boolean>();
+    private static HashMap<String, Integer> timetable = new HashMap<String, Integer>();
     private static ReadData readData = new ReadData("data.txt");
     private static List<String> data;
     private static Task[] tasks;
     private static int cMax = 0;
 
     public static void main(String[] args) {
-
         initializeTasks();
         count();
-        printResults();
+        getCriticalPath();
+        generateTimetable();
+
+        createGraphJson();
+        createTimetableJson();
+
+//        printResults();
+//        System.out.println(criticalPath);
     }
 
     private static void initializeTasks() {
@@ -120,6 +125,52 @@ public class Main {
 
         return children;
     }
+
+    private static void getCriticalPath() {
+        for (Task task : tasks) {
+            String name = task.getName();
+            if (earliestStarts.get(name).equals(latestStarts.get(name)) && earliestFinishes.get(name).equals(latestFinishes.get(name))) {
+                criticalPath.put(name, true);
+            } else {
+                criticalPath.put(name, false);
+            }
+        }
+    }
+
+    private static void generateTimetable() {
+        HashMap<String, Integer> taskTimeClone = (HashMap<String, Integer>) taskTime.clone();
+
+        for (Task task : tasks) {
+            if (criticalPath.get(task.getName())) {
+                timetable.put(task.getName(), 1);
+                taskTimeClone.remove(task.getName());
+            }
+        }
+
+        int machine = 2;
+
+        while (!taskTimeClone.isEmpty()) {
+            int max = 0;
+            for (Task task : tasks) {
+                if (taskTimeClone.containsKey(task.getName())) {
+                    if (!timetable.containsValue(machine)) {
+                        timetable.put(task.getName(), machine);
+                        max = earliestFinishes.get(task.getName());
+                        taskTimeClone.remove(task.getName());
+                    } else {
+                        if (earliestStarts.get(task.getName()) >= max && earliestFinishes.get(task.getName()) < cMax) {
+                            timetable.put(task.getName(), machine);
+                            max = earliestFinishes.get(task.getName());
+                            taskTimeClone.remove(task.getName());
+                        }
+                    }
+                }
+            }
+            machine++;
+        }
+    }
+
+    
 
     private static void printResults() {
         for (Task task : tasks) {
