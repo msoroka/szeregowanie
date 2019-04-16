@@ -3,91 +3,131 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class Main {
+    private static HashMap<String, Integer> earliestStarts = new HashMap<String, Integer>();
+    private static HashMap<String, Integer> earliestFinishes = new HashMap<String, Integer>();
+    private static HashMap<String, Integer> latestStarts = new HashMap<String, Integer>();
+    private static HashMap<String, Integer> latestFinishes = new HashMap<String, Integer>();
+    private static HashMap<String, List<String>> taskParents = new HashMap<String, List<String>>();
+    private static HashMap<String, List<String>> taskChildren = new HashMap<String, List<String>>();
+    private static HashMap<String, Integer> taskTime = new HashMap<String, Integer>();
+    private static ReadData readData = new ReadData("data.txt");
+    private static List<String> data;
+    private static Task[] tasks;
+    private static int cMax = 0;
 
-    public static void main(String[] args) throws IOException {
-        ReadData readData = new ReadData("data.txt");
-        readData.readFile();
-        List<String> data = readData.getResult();
-        Task[] tasks = new Task[data.size()];
-        HashMap<String, List<String>> taskPrevious = new HashMap<String, List<String>>();
-        HashMap<String, Integer> taskTime = new HashMap<String, Integer>();
+    public static void main(String[] args) {
 
-        for (int i = 0; i < data.size(); i++) {
+        initializeTasks();
+        count();
+        printResults();
+    }
+
+    private static void initializeTasks() {
+        try {
+            readData.readFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        data = readData.getResult();
+        tasks = new Task[data.size()];
+
+        IntStream.range(0, data.size()).forEach(i -> {
             String tempString = data.get(i);
             String[] parts = tempString.split(" ");
-
             if (parts.length == 2) {
                 tasks[i] = new Task(parts[0], Integer.parseInt(parts[1]));
-
-                taskPrevious.put(parts[0], new ArrayList<String>());
-
+                taskParents.put(parts[0], new ArrayList<>());
             } else {
-                List<String> previous = new ArrayList<String>(Arrays.asList(parts).subList(2, parts.length));
-
-                tasks[i] = new Task(parts[0], Integer.parseInt(parts[1]), previous);
-
-                taskPrevious.put(parts[0], previous);
+                List<String> parents = new ArrayList<>(Arrays.asList(parts).subList(2, parts.length));
+                tasks[i] = new Task(parts[0], Integer.parseInt(parts[1]), parents);
+                taskParents.put(parts[0], parents);
             }
 
             taskTime.put(parts[0], Integer.parseInt(parts[1]));
-        }
+        });
 
-        count(tasks, taskTime);
+        for (Task task : tasks) {
+            if (hasChildren(task)) {
+                taskChildren.put(task.getName(), getChildren(task));
+                task.setChildren(getChildren(task));
+            }
+        }
     }
 
-    public static void count(Task[] tasks, HashMap<String, Integer> taskTime) {
-        HashMap<String, Integer> earliestStarts = new HashMap<String, Integer>();
-        HashMap<String, Integer> earliestFinishes = new HashMap<String, Integer>();
-        HashMap<String, Integer> latestStarts = new HashMap<String, Integer>();
-        HashMap<String, Integer> latestFinishes = new HashMap<String, Integer>();
-
-        for (int i = 0; i < tasks.length; i++) {
-            if (tasks[i].getPrevious().isEmpty()) {
-                earliestStarts.put(tasks[i].getTask(), 0);
-                earliestFinishes.put(tasks[i].getTask(), tasks[i].getTime());
+    private static void count() {
+        for (Task task : tasks) {
+            if (task.getParents().isEmpty()) {
+                earliestStarts.put(task.getName(), 0);
+                earliestFinishes.put(task.getName(), task.getTime());
             } else {
                 int maxFromPrevious = 0;
-                for (int j = 0; j < tasks[i].getPrevious().size(); j++) {
-                    int temp = earliestFinishes.get(tasks[i].getPrevious().get(j));
+                for (int j = 0; j < task.getParents().size(); j++) {
+                    int temp = earliestFinishes.get(task.getParents().get(j));
 
                     if (temp > maxFromPrevious) maxFromPrevious = temp;
                 }
 
-                earliestStarts.put(tasks[i].getTask(), maxFromPrevious);
-                earliestFinishes.put(tasks[i].getTask(), maxFromPrevious + tasks[i].getTime());
+                if (maxFromPrevious + task.getTime() > cMax) cMax = maxFromPrevious + task.getTime();
+
+                earliestStarts.put(task.getName(), maxFromPrevious);
+                earliestFinishes.put(task.getName(), maxFromPrevious + task.getTime());
             }
         }
 
-        System.out.println("A " + earliestStarts.get("A") + " " + earliestFinishes.get("A"));
-        System.out.println("A " + latestStarts.get("A") + " " + latestFinishes.get("A"));
-        System.out.println();
-        System.out.println("B " + earliestStarts.get("B") + " " + earliestFinishes.get("B"));
-        System.out.println("B " + latestStarts.get("B") + " " + latestFinishes.get("B"));
-        System.out.println();
-        System.out.println("C " + earliestStarts.get("C") + " " + earliestFinishes.get("C"));
-        System.out.println("C " + latestStarts.get("C") + " " + latestFinishes.get("C"));
-        System.out.println();
-        System.out.println("D " + earliestStarts.get("D") + " " + earliestFinishes.get("D"));
-        System.out.println("D " + latestStarts.get("D") + " " + latestFinishes.get("D"));
-        System.out.println();
-        System.out.println("E " + earliestStarts.get("E") + " " + earliestFinishes.get("E"));
-        System.out.println("E " + latestStarts.get("E") + " " + latestFinishes.get("E"));
-        System.out.println();
-        System.out.println("F " + earliestStarts.get("F") + " " + earliestFinishes.get("F"));
-        System.out.println("F " + latestStarts.get("F") + " " + latestFinishes.get("F"));
-        System.out.println();
-        System.out.println("G " + earliestStarts.get("G") + " " + earliestFinishes.get("G"));
-        System.out.println("G " + latestStarts.get("G") + " " + latestFinishes.get("G"));
-        System.out.println();
-        System.out.println("H " + earliestStarts.get("H") + " " + earliestFinishes.get("H"));
-        System.out.println("H " + latestStarts.get("H") + " " + latestFinishes.get("H"));
-        System.out.println();
-        System.out.println("I " + earliestStarts.get("I") + " " + earliestFinishes.get("I"));
-        System.out.println("I " + latestStarts.get("I") + " " + latestFinishes.get("I"));
-        System.out.println();
-        System.out.println("J " + earliestStarts.get("J") + " " + earliestFinishes.get("J"));
-        System.out.println("J " + latestStarts.get("J") + " " + latestFinishes.get("J"));
+        for (Task task : tasks) {
+            if (!hasChildren(task)) {
+                latestStarts.put(task.getName(), cMax - task.getTime());
+                latestFinishes.put(task.getName(), cMax);
+            }
+        }
+
+        for (int i = tasks.length - 1; i >= 0; i--) {
+            if (hasChildren(tasks[i])) {
+                int childMinLatestStart = cMax;
+
+                for (String child : tasks[i].getChildren()) {
+                    if (latestStarts.get(child) < childMinLatestStart) childMinLatestStart = latestStarts.get(child);
+                }
+
+                latestStarts.put(tasks[i].getName(), childMinLatestStart - tasks[i].getTime());
+                latestFinishes.put(tasks[i].getName(), childMinLatestStart);
+            }
+        }
+    }
+
+    private static boolean hasChildren(Task task) {
+        for (Task t : tasks) {
+            if (t.getParents().contains(task.getName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static List<String> getChildren(Task task) {
+        List<String> children = new ArrayList<>();
+
+        for (Task t : tasks) {
+            if (t.getParents().contains(task.getName())) {
+                children.add(t.getName());
+            }
+        }
+
+        return children;
+    }
+
+    private static void printResults() {
+        for (Task task : tasks) {
+            System.out.println(task.getName() + ": " + earliestStarts.get(task.getName()) + " " + earliestFinishes.get(task.getName()));
+            System.out.println(task.getName() + ": " + latestStarts.get(task.getName()) + " " + latestFinishes.get(task.getName()));
+            System.out.println();
+        }
+
+        System.out.println("cMax = " + cMax);
     }
 }

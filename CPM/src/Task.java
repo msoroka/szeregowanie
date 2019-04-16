@@ -2,27 +2,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Task {
-    private String task;
+    private String name;
     private int time;
-    private List<String> previous = new ArrayList<String>();
+    private List<String> parents = new ArrayList<String>();
+    private List<String> children = new ArrayList<String>();
 
     public Task(String task, int time) {
-        this.task = task;
+        this.name = task;
         this.time = time;
     }
 
-    public Task(String task, int time, List<String> previous) {
-        this.task = task;
+    public Task(String task, int time, List<String> parents) {
+        this.name = task;
         this.time = time;
-        this.previous = previous;
+        this.parents = parents;
     }
 
-    public String getTask() {
-        return task;
+    public String getName() {
+        return name;
     }
 
-    public void setTask(String task) {
-        this.task = task;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getTime() {
@@ -33,11 +34,19 @@ public class Task {
         this.time = time;
     }
 
-    public List<String> getPrevious() {
-        return previous;
+    public List<String> getParents() {
+        return parents;
     }
 
-    public void setPrevious(List<String> previous) {
-        this.previous = previous;
+    public void setParents(List<String> parents) {
+        this.parents = parents;
+    }
+
+    public List<String> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<String> children) {
+        this.children = children;
     }
 }
