@@ -1,6 +1,13 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.IntStream;
+
+import org.json.*;
 
 public class Main {
     private static HashMap<String, Integer> earliestStarts = new HashMap<String, Integer>();
@@ -27,7 +34,6 @@ public class Main {
         createTimetableJson();
 
 //        printResults();
-//        System.out.println(criticalPath);
     }
 
     private static void initializeTasks() {
@@ -170,7 +176,64 @@ public class Main {
         }
     }
 
-    
+    private static void createGraphJson() {
+        String jsonString = null;
+        JSONObject jsonObject = new JSONObject();
+        try {
+            for (Task task : tasks) {
+                jsonObject.put(task.getName(), new JSONObject()
+                                .put("time", task.getTime())
+                                .put("parents", task.getParents())
+                                .put("critical", criticalPath.get(task.getName()))
+                                .put("values", new JSONObject()
+                                        .put("earliestStarts", earliestStarts.get(task.getName()))
+                                        .put("earliestFinishes", earliestFinishes.get(task.getName()))
+                                        .put("latestStarts", latestStarts.get(task.getName()))
+                                        .put("latestFinishes", latestFinishes.get(task.getName()))));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        jsonString = jsonObject.toString();
+
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter("graph.json"));
+            writer.write(jsonString);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void createTimetableJson() {
+        String jsonString = null;
+        JSONObject jsonObject = new JSONObject();
+        try {
+            for (Task task : tasks) {
+                jsonObject.put(task.getName(), new JSONObject()
+                        .put("time", task.getTime())
+                        .put("machine", timetable.get(task.getName()))
+                        .put("values", new JSONObject()
+                                .put("earliestStarts", earliestStarts.get(task.getName()))
+                                .put("earliestFinishes", earliestFinishes.get(task.getName()))));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        jsonString = jsonObject.toString();
+
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter("timetable.json"));
+            writer.write(jsonString);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static void printResults() {
         for (Task task : tasks) {
