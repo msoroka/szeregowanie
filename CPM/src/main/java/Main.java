@@ -161,10 +161,16 @@ public class Main {
     private static void generateTimetable() {
         HashMap<String, Integer> taskTimeClone = (HashMap<String, Integer>) taskTime.clone();
 
+        int tempMax = 0;
         for (Task task : tasks) {
             if (criticalPath.get(task.getName())) {
-                timetable.put(task.getName(), 1);
-                taskTimeClone.remove(task.getName());
+                int temp = earliestFinishes.get(task.getName());
+
+                if(tempMax < temp) {
+                    tempMax = temp;
+                    timetable.put(task.getName(), 1);
+                    taskTimeClone.remove(task.getName());
+                }
             }
         }
 
