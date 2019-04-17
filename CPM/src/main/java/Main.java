@@ -1,4 +1,7 @@
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,7 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.layout.mxIGraphLayout;
+import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxConstants;
+import org.jgrapht.ext.JGraphXAdapter;
+import org.jgrapht.graph.*;
 import org.json.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 public class Main {
     private static HashMap<String, Integer> earliestStarts = new HashMap<String, Integer>();
@@ -33,7 +46,9 @@ public class Main {
         createGraphJson();
         createTimetableJson();
 
-//        printResults();
+        createGraph();
+
+        printResults();
     }
 
     private static void initializeTasks() {
@@ -233,6 +248,58 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void createGraph() {
+        File imgFile = new File("graph.png");
+
+        try {
+            imgFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        DefaultDirectedGraph<String, DefaultEdge> g =
+                new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
+
+        for (Task task: tasks) {
+            g.addVertex(task.getName() + ", " + task.getTime());
+        }
+
+        for (Task task: tasks) {
+            if(!task.getParents().isEmpty()) {
+                for(String parent: task.getParents()) {
+                    g.addEdge(parent + ", " + taskTime.get(parent), task.getName() + ", " + task.getTime());
+                }
+            }
+        }
+
+        try {
+            graphToFile(g);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void graphToFile(DefaultDirectedGraph<String, DefaultEdge> g) throws IOException {
+
+        JGraphXAdapter<String, DefaultEdge> graphAdapter =
+                new JGraphXAdapter<String, DefaultEdge>(g);
+        mxHierarchicalLayout layout = new mxHierarchicalLayout(graphAdapter);
+
+        graphAdapter.getStylesheet().getDefaultEdgeStyle().put(mxConstants.STYLE_NOLABEL, "1");
+
+        layout.setIntraCellSpacing(50);
+        layout.setInterRankCellSpacing(40);
+        layout.setOrientation(SwingConstants.WEST);
+
+        layout.execute(graphAdapter.getDefaultParent());
+
+
+        BufferedImage image =
+                mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
+        File imgFile = new File("graph.png");
+        ImageIO.write(image, "PNG", imgFile);
     }
 
     private static void printResults() {
