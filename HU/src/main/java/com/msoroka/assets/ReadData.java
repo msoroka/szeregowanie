@@ -5,16 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReadData {
-    private File file;
-    private BufferedReader bufferedReader = null;
     private String tempString;
-    private List<String> result = new ArrayList<String>();
+    private List<String> result = new ArrayList<>();
 
     public ReadData(String fileName) {
-        this.file = new File(fileName);
+        File file = new File(fileName);
 
+        BufferedReader bufferedReader = null;
         try {
-            bufferedReader = new BufferedReader((new FileReader(this.file)));
+            bufferedReader = new BufferedReader((new FileReader(file)));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
