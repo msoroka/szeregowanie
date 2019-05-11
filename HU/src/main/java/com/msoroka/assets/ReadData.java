@@ -1,8 +1,7 @@
 package com.msoroka.assets;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ReadData {
     private String tempString;

@@ -5,6 +5,7 @@ import com.mxgraph.util.mxCellRenderer;
 import com.mxgraph.util.mxConstants;
 import org.jgrapht.ext.JGraphXAdapter;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.imageio.*;
@@ -31,8 +32,8 @@ public class Graph {
             e.printStackTrace();
         }
 
-        DefaultDirectedGraph<String, DefaultEdge> g =
-                new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
+        DefaultDirectedWeightedGraph<String, DefaultEdge> g =
+                new DefaultDirectedWeightedGraph<String, DefaultEdge>(DefaultEdge.class);
 
         for (Task task : this.tasks) {
             g.addVertex(task.getName());

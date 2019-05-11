@@ -17,5 +17,7 @@ public class Main {
         Task[] tasks = taskManager.generateTasks(data);
 
         Graph graph = new Graph(tasks);
+
+        taskManager.generateSchedule();
     }
 }

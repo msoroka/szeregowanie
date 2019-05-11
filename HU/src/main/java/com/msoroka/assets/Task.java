@@ -7,6 +7,10 @@ public class Task {
     private String name;
     private List<String> next = new ArrayList<>();
     private List<String> previous = new ArrayList<>();
+    private int level;
+    private int machine;
+    private int start;
+    private int finish;
 
     public Task() {
     }
@@ -37,5 +41,37 @@ public class Task {
 
     public void setPrevious(List<String> previous) {
         this.previous = previous;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public int getMachine() {
+        return machine;
+    }
+
+    public void setMachine(int machine) {
+        this.machine = machine;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getFinish() {
+        return finish;
+    }
+
+    public void setFinish(int finish) {
+        this.finish = finish;
     }
 }
