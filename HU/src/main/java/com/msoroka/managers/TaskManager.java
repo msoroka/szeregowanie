@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
+
 import org.json.*;
 
 public class TaskManager {
@@ -134,31 +135,31 @@ public class TaskManager {
         int finish = 1;
 
         for (Task task : this.tasks) {
-                task.setMachine(machine);
-                task.setStart(start);
-                task.setFinish(finish);
-                taskMachine.put(task.getName(), task.getMachine());
-                taskStart.put(task.getName(), task.getStart());
-                taskFinish.put(task.getName(), task.getFinish());
+            task.setMachine(machine);
+            task.setStart(start);
+            task.setFinish(finish);
+            taskMachine.put(task.getName(), task.getMachine());
+            taskStart.put(task.getName(), task.getStart());
+            taskFinish.put(task.getName(), task.getFinish());
 
             machine++;
 
-            if(machine > this.machines) {
+            if (machine > this.machines) {
                 machine = 1;
                 start += 1;
                 finish += 1;
             }
         }
 
-        for(Task task: this.tasks) {
-            if(!task.getPrevious().isEmpty()) {
+        for (Task task : this.tasks) {
+            if (!task.getPrevious().isEmpty()) {
                 List<String> previousTasks = task.getPrevious();
 
-                for(String t: previousTasks) {
+                for (String t : previousTasks) {
                     int s = taskStart.get(t);
                     int f = taskFinish.get(t);
 
-                    if(s == task.getStart() && f == task.getFinish()) {
+                    if (s == task.getStart() && f == task.getFinish()) {
                         task.setStart(task.getStart() + 1);
                         task.setFinish(task.getFinish() + 1);
 
@@ -166,7 +167,7 @@ public class TaskManager {
                         taskFinish.replace(task.getName(), task.getFinish() + 1);
                     }
 
-                    if(s > task.getStart() && f > task.getFinish()) {
+                    if (s > task.getStart() && f > task.getFinish()) {
                         task.setStart(task.getStart() + Math.abs(s - task.getStart()));
                         task.setFinish(task.getFinish() + Math.abs(f - task.getFinish()));
 
@@ -177,7 +178,7 @@ public class TaskManager {
             }
         }
 
-        for (Task task: this.tasks) {
+        for (Task task : this.tasks) {
             System.out.println(task.getName() + ", start: " + task.getStart() + " finish: " + task.getFinish() + " previous: " + task.getPrevious());
         }
 

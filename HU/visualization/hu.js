@@ -1,7 +1,7 @@
 window.onload = function () {
     fetch("../timetable.json")
         .then(response => response.json())
-.then(json => jsonIteration(json));
+        .then(json => jsonIteration(json));
 
     let jsonIteration = (json) => {
         let data = [];
@@ -26,8 +26,8 @@ window.onload = function () {
             },
             axisX: {
                 title: "Maszyny",
-                labelFormatter: function(e){
-                    return  "M: " + e.value;
+                labelFormatter: function (e) {
+                    return "M: " + e.value;
                 }
             },
             axisY: {
