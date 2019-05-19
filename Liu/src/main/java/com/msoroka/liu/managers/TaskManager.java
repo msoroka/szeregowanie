@@ -1,27 +1,29 @@
 package com.msoroka.liu.managers;
 
 import com.msoroka.liu.assets.Task;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 public class TaskManager {
     private List<String> data;
     private int N;
     private int t;
     private int Lmax;
-    private HashMap<String, Integer> pi = new HashMap<String, Integer>();
-    private HashMap<String, Integer> dj = new HashMap<String, Integer>();
-    private HashMap<String, Integer> rj = new HashMap<String, Integer>();
-    private HashMap<String, Integer> di = new HashMap<String, Integer>();
-    private HashMap<String, Integer> li = new HashMap<String, Integer>();
-    private HashMap<Integer, String> taskStart = new HashMap<Integer, String>();
-    private HashMap<Integer, String> taskFinish = new HashMap<Integer, String>();
-    private HashMap<String, List<String>> taskNext = new HashMap<String, List<String>>();
-    private HashMap<String, List<String>> taskAllNexts = new HashMap<String, List<String>>();
-    private HashMap<String, List<String>> taskPrevious = new HashMap<String, List<String>>();
+    private HashMap<String, Integer> pi = new HashMap<>();
+    private HashMap<String, Integer> dj = new HashMap<>();
+    private HashMap<String, Integer> rj = new HashMap<>();
+    private HashMap<String, Integer> di = new HashMap<>();
+    private HashMap<String, Integer> li = new HashMap<>();
+    private HashMap<Integer, String> taskStart = new HashMap<>();
+    private HashMap<Integer, String> taskFinish = new HashMap<>();
+    private HashMap<String, List<String>> taskNext = new HashMap<>();
+    private HashMap<String, List<String>> taskAllNexts = new HashMap<>();
+    private HashMap<String, List<String>> taskPrevious = new HashMap<>();
     private Task[] tasks;
 
     public TaskManager() {
@@ -31,11 +33,132 @@ public class TaskManager {
         this.data = data;
     }
 
+    public List<String> getData() {
+        return data;
+    }
+
+    public void setData(List<String> data) {
+        this.data = data;
+    }
+
+    public int getN() {
+        return N;
+    }
+
+    public void setN(int n) {
+        N = n;
+    }
+
+    public int getT() {
+        return t;
+    }
+
+    public void setT(int t) {
+        this.t = t;
+    }
+
+    public int getLmax() {
+        return Lmax;
+    }
+
+    public void setLmax(int lmax) {
+        Lmax = lmax;
+    }
+
+    public HashMap<String, Integer> getPi() {
+        return pi;
+    }
+
+    public void setPi(HashMap<String, Integer> pi) {
+        this.pi = pi;
+    }
+
+    public HashMap<String, Integer> getDj() {
+        return dj;
+    }
+
+    public void setDj(HashMap<String, Integer> dj) {
+        this.dj = dj;
+    }
+
+    public HashMap<String, Integer> getRj() {
+        return rj;
+    }
+
+    public void setRj(HashMap<String, Integer> rj) {
+        this.rj = rj;
+    }
+
+    public HashMap<String, Integer> getDi() {
+        return di;
+    }
+
+    public void setDi(HashMap<String, Integer> di) {
+        this.di = di;
+    }
+
+    public HashMap<String, Integer> getLi() {
+        return li;
+    }
+
+    public void setLi(HashMap<String, Integer> li) {
+        this.li = li;
+    }
+
+    public HashMap<Integer, String> getTaskStart() {
+        return taskStart;
+    }
+
+    public void setTaskStart(HashMap<Integer, String> taskStart) {
+        this.taskStart = taskStart;
+    }
+
+    public HashMap<Integer, String> getTaskFinish() {
+        return taskFinish;
+    }
+
+    public void setTaskFinish(HashMap<Integer, String> taskFinish) {
+        this.taskFinish = taskFinish;
+    }
+
+    public HashMap<String, List<String>> getTaskNext() {
+        return taskNext;
+    }
+
+    public void setTaskNext(HashMap<String, List<String>> taskNext) {
+        this.taskNext = taskNext;
+    }
+
+    public HashMap<String, List<String>> getTaskAllNexts() {
+        return taskAllNexts;
+    }
+
+    public void setTaskAllNexts(HashMap<String, List<String>> taskAllNexts) {
+        this.taskAllNexts = taskAllNexts;
+    }
+
+    public HashMap<String, List<String>> getTaskPrevious() {
+        return taskPrevious;
+    }
+
+    public void setTaskPrevious(HashMap<String, List<String>> taskPrevious) {
+        this.taskPrevious = taskPrevious;
+    }
+
+    public Task[] getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(Task[] tasks) {
+        this.tasks = tasks;
+    }
+
     public void generateTasks() {
         this.N = Integer.parseInt(this.data.get(0));
         this.tasks = new Task[N];
         this.designateTasks();
         this.generateSchedule();
+        this.writeResults();
     }
 
     private void designateTasks() {
@@ -45,7 +168,7 @@ public class TaskManager {
 
             if (parts.length == 1) {
                 this.tasks[i - 1] = new Task(parts[0]);
-                this.taskPrevious.put(parts[0], new ArrayList<String>());
+                this.taskPrevious.put(parts[0], new ArrayList<>());
             } else {
                 List<String> parents = new ArrayList<>(Arrays.asList(parts).subList(1, parts.length));
                 this.tasks[i - 1] = new Task(parts[0]);
@@ -59,7 +182,7 @@ public class TaskManager {
                 taskNext.put(task.getName(), getNext(task));
                 task.setNext(getNext(task));
             } else {
-                taskNext.put(task.getName(), new ArrayList<String>());
+                taskNext.put(task.getName(), new ArrayList<>());
             }
         }
 
@@ -73,7 +196,7 @@ public class TaskManager {
     private void designateAllNexts() {
         for (Task task : this.tasks) {
             String tempNext = null;
-            List<String> tempNexts = new ArrayList<String>();
+            List<String> tempNexts = new ArrayList<>();
 
             if (!task.getNext().isEmpty()) {
                 for (String s : task.getNext()) {
@@ -182,15 +305,14 @@ public class TaskManager {
 
                 if (taskWithMinDi.getPrevious().isEmpty()) {
                     putTaskIntoSchedule(time, taskWithMinDi);
-                }
-                else {
+                } else {
                     boolean isBreak = false;
                     for (String prev : taskWithMinDi.getPrevious()) {
                         for (Task tt : this.tasks) {
                             if (prev.equals(tt.getName())) {
                                 if (!tt.isCompleted()) {
-                                    taskStart.put(time, "break");
-                                    taskFinish.put(time + 1, "break");
+                                    taskStart.put(time, "przerwa");
+                                    taskFinish.put(time + 1, "przerwa");
                                     isBreak = true;
                                 }
                             }
@@ -223,12 +345,31 @@ public class TaskManager {
 
     private void designateLmax() {
         int max = li.get(this.tasks[0].getName());
-        for (Task task: this.tasks) {
-            if(li.get(task.getName()) > max ){
+        for (Task task : this.tasks) {
+            if (li.get(task.getName()) > max) {
                 max = li.get(task.getName());
             }
         }
 
         this.Lmax = max;
+    }
+
+    private void writeResults() {
+        System.out.println("Harmonogram:");
+        for (Map.Entry<Integer, String> task : this.taskStart.entrySet()) {
+            Integer key = task.getKey();
+            String value = task.getValue();
+
+            System.out.println("[" + key + ", " + (key + 1) + "] => " + value);
+        }
+        System.out.println();
+
+        System.out.println("Li:");
+        System.out.println(this.li);
+        System.out.println();
+
+        System.out.println("t: " + this.t);
+        System.out.println("Lmax: " + this.Lmax);
+
     }
 }
