@@ -10,10 +10,15 @@ import java.util.List;
 public class TaskManager {
     private List<String> data;
     private int N;
+    private int t;
+    private int Lmax;
     private HashMap<String, Integer> pi = new HashMap<String, Integer>();
     private HashMap<String, Integer> dj = new HashMap<String, Integer>();
     private HashMap<String, Integer> rj = new HashMap<String, Integer>();
     private HashMap<String, Integer> di = new HashMap<String, Integer>();
+    private HashMap<String, Integer> li = new HashMap<String, Integer>();
+    private HashMap<Integer, String> taskStart = new HashMap<Integer, String>();
+    private HashMap<Integer, String> taskFinish = new HashMap<Integer, String>();
     private HashMap<String, List<String>> taskNext = new HashMap<String, List<String>>();
     private HashMap<String, List<String>> taskAllNexts = new HashMap<String, List<String>>();
     private HashMap<String, List<String>> taskPrevious = new HashMap<String, List<String>>();
@@ -30,14 +35,7 @@ public class TaskManager {
         this.N = Integer.parseInt(this.data.get(0));
         this.tasks = new Task[N];
         this.designateTasks();
-
-        System.out.println(this.taskNext);
-        System.out.println(this.taskPrevious);
-        System.out.println(this.taskAllNexts);
-        System.out.println(this.pi);
-        System.out.println(this.dj);
-        System.out.println(this.rj);
-        System.out.println(this.di);
+        this.generateSchedule();
     }
 
     private void designateTasks() {
@@ -73,20 +71,20 @@ public class TaskManager {
     }
 
     private void designateAllNexts() {
-        for (Task task: this.tasks) {
+        for (Task task : this.tasks) {
             String tempNext = null;
             List<String> tempNexts = new ArrayList<String>();
 
-            if(!task.getNext().isEmpty()) {
-                for(String s: task.getNext()) {
+            if (!task.getNext().isEmpty()) {
+                for (String s : task.getNext()) {
                     tempNext = s;
                     tempNexts.add(tempNext);
                 }
             }
 
-            while(tempNext != null) {
-                if(!taskNext.get(tempNext).isEmpty()) {
-                    for (String s: taskNext.get(tempNext)) {
+            while (tempNext != null) {
+                if (!taskNext.get(tempNext).isEmpty()) {
+                    for (String s : taskNext.get(tempNext)) {
                         tempNext = s;
                         tempNexts.add(tempNext);
                     }
@@ -124,11 +122,11 @@ public class TaskManager {
     }
 
     private void designateDI() {
-        for (Task task: this.tasks) {
+        for (Task task : this.tasks) {
             int min = this.dj.get(task.getName());
 
-            for (String s: this.taskAllNexts.get(task.getName())) {
-                if(this.dj.get(s) < min ) {
+            for (String s : this.taskAllNexts.get(task.getName())) {
+                if (this.dj.get(s) < min) {
                     min = this.dj.get(s);
                 }
             }
@@ -157,5 +155,80 @@ public class TaskManager {
         }
 
         return next;
+    }
+
+    private void generateSchedule() {
+        int time = 0;
+
+        while (!this.tasks[N - 1].isCompleted()) {
+            List<Task> inSystem = new ArrayList<Task>();
+
+            for (Task t : this.tasks) {
+                if (rj.get(t.getName()) <= time && !t.isCompleted()) {
+                    inSystem.add(t);
+                }
+            }
+
+            if (inSystem.size() > 0) {
+                int minDi = this.di.get(inSystem.get(0).getName());
+                Task taskWithMinDi = inSystem.get(0);
+
+                for (Task in : inSystem) {
+                    if (this.di.get(in.getName()) < minDi) {
+                        minDi = this.di.get((in.getName()));
+                        taskWithMinDi = in;
+                    }
+                }
+
+                if (taskWithMinDi.getPrevious().isEmpty()) {
+                    putTaskIntoSchedule(time, taskWithMinDi);
+                }
+                else {
+                    boolean isBreak = false;
+                    for (String prev : taskWithMinDi.getPrevious()) {
+                        for (Task tt : this.tasks) {
+                            if (prev.equals(tt.getName())) {
+                                if (!tt.isCompleted()) {
+                                    taskStart.put(time, "break");
+                                    taskFinish.put(time + 1, "break");
+                                    isBreak = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!isBreak) {
+                        putTaskIntoSchedule(time, taskWithMinDi);
+                    }
+                }
+            }
+
+            time++;
+        }
+
+        this.t = time;
+        this.designateLmax();
+    }
+
+    private void putTaskIntoSchedule(int time, Task taskWithMinDi) {
+        taskStart.put(time, taskWithMinDi.getName());
+        taskFinish.put(time + 1, taskWithMinDi.getName());
+        pi.replace(taskWithMinDi.getName(), pi.get(taskWithMinDi.getName()) - 1);
+
+        if (pi.get(taskWithMinDi.getName()) == 0) {
+            taskWithMinDi.setCompleted(true);
+            li.put(taskWithMinDi.getName(), (time + 1) - dj.get(taskWithMinDi.getName()));
+        }
+    }
+
+    private void designateLmax() {
+        int max = li.get(this.tasks[0].getName());
+        for (Task task: this.tasks) {
+            if(li.get(task.getName()) > max ){
+                max = li.get(task.getName());
+            }
+        }
+
+        this.Lmax = max;
     }
 }
