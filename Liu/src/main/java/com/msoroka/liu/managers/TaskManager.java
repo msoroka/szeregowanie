@@ -15,6 +15,7 @@ public class TaskManager {
     private int t;
     private int Lmax;
     private HashMap<String, Integer> pi = new HashMap<>();
+    private HashMap<String, Integer> piClone = new HashMap<>();
     private HashMap<String, Integer> dj = new HashMap<>();
     private HashMap<String, Integer> rj = new HashMap<>();
     private HashMap<String, Integer> di = new HashMap<>();
@@ -282,6 +283,7 @@ public class TaskManager {
 
     private void generateSchedule() {
         int time = 0;
+        this.piClone = new HashMap<String, Integer>(this.pi);
 
         while (!this.tasks[N - 1].isCompleted()) {
             List<Task> inSystem = new ArrayList<Task>();
@@ -355,13 +357,20 @@ public class TaskManager {
     }
 
     private void writeResults() {
-        System.out.println("Harmonogram:");
-        for (Map.Entry<Integer, String> task : this.taskStart.entrySet()) {
-            Integer key = task.getKey();
-            String value = task.getValue();
+        System.out.println("Pi:");
+        System.out.println(this.piClone);
+        System.out.println();
 
-            System.out.println("[" + key + ", " + (key + 1) + "] => " + value);
-        }
+        System.out.println("Dj:");
+        System.out.println(this.dj);
+        System.out.println();
+
+        System.out.println("Rj:");
+        System.out.println(this.rj);
+        System.out.println();
+
+        System.out.println("Di*:");
+        System.out.println(this.di);
         System.out.println();
 
         System.out.println("Li:");
@@ -370,6 +379,15 @@ public class TaskManager {
 
         System.out.println("t: " + this.t);
         System.out.println("Lmax: " + this.Lmax);
+        System.out.println();
+
+        System.out.println("Harmonogram:");
+        for (Map.Entry<Integer, String> task : this.taskStart.entrySet()) {
+            Integer key = task.getKey();
+            String value = task.getValue();
+
+            System.out.println("[" + key + ", " + (key + 1) + "] => " + value);
+        }
 
     }
 }
