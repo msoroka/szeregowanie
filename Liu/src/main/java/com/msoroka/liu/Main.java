@@ -13,6 +13,6 @@ public class Main {
         TaskManager taskManager = new TaskManager(data);
         taskManager.generateTasks();
         Task[] tasks = taskManager.getTasks();
-        Graph graph = new Graph(tasks);
+//        Graph graph = new Graph(tasks);
     }
 }

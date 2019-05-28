@@ -178,6 +178,7 @@ public class TaskManager {
             }
         }
 
+
         for (Task task : this.tasks) {
             if (hasNext(task)) {
                 taskNext.put(task.getName(), getNext(task));
@@ -187,11 +188,17 @@ public class TaskManager {
             }
         }
 
-        this.designateAllNexts();
-        this.designatePI();
-        this.designateDJ();
-        this.designateRJ();
-        this.designateDI();
+
+        if(this.checkIfCycled()) {
+            System.out.println("Graf cykliczny!");
+            System.exit(1);
+        } else {
+            this.designateAllNexts();
+            this.designatePI();
+            this.designateDJ();
+            this.designateRJ();
+            this.designateDI();
+        }
     }
 
     private void designateAllNexts() {
@@ -354,6 +361,23 @@ public class TaskManager {
         }
 
         this.Lmax = max;
+    }
+
+    private boolean checkIfCycled() {
+        for (Task task: this.tasks) {
+            task.setVisited(true);
+            for (String s: task.getNext()) {
+                for (Task t : this.tasks) {
+                    if(s.equals(t.getName())) {
+                        if(t.isVisited()){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private void writeResults() {

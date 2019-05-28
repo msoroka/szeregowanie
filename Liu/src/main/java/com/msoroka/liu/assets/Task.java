@@ -8,6 +8,7 @@ public class Task {
     private List<String> next = new ArrayList<>();
     private List<String> previous = new ArrayList<>();
     private boolean isCompleted = false;
+    private boolean isVisited = false;
 
     public Task() {
     }
@@ -46,5 +47,13 @@ public class Task {
 
     public void setCompleted(boolean completed) {
         isCompleted = completed;
+    }
+
+    public boolean isVisited() {
+        return isVisited;
+    }
+
+    public void setVisited(boolean visited) {
+        isVisited = visited;
     }
 }
