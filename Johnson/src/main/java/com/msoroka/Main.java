@@ -9,9 +9,5 @@ public class Main {
         ReadData readData = new ReadData("dane.txt");
         Task[] tasks = readData.getTasks();
         TaskManager taskManager = new TaskManager(tasks);
-
-        for (Task task: tasks) {
-            System.out.println(task);
-        }
     }
 }

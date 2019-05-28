@@ -6,7 +6,6 @@ import java.util.List;
 
 public class ReadData {
     private Task[] tasks;
-    private List<String> results = new ArrayList<>();
 
     public ReadData(String fileName) {
         File file = new File(fileName);
@@ -18,6 +17,7 @@ public class ReadData {
             e.printStackTrace();
         }
 
+        List<String> results = new ArrayList<>();
         while (true) {
             String tempString = "";
 
@@ -28,17 +28,17 @@ public class ReadData {
                 e.printStackTrace();
             }
 
-            this.results.add(tempString);
+            results.add(tempString);
         }
 
-        this.tasks = new Task[this.results.size() / 4];
+        this.tasks = new Task[results.size() / 4];
 
-        for (int i = 0; i < this.results.size()-1; i += 4) {
-            int tempM1 = Integer.parseInt(this.results.get(i + 1));
-            int tempM2 = Integer.parseInt(this.results.get(i + 2));
-            int tempM3 = Integer.parseInt(this.results.get(i + 3));
+        for (int i = 0; i < results.size()-1; i += 4) {
+            int tempM1 = Integer.parseInt(results.get(i + 1));
+            int tempM2 = Integer.parseInt(results.get(i + 2));
+            int tempM3 = Integer.parseInt(results.get(i + 3));
 
-            this.tasks[i / 4] = new Task(this.results.get(i), tempM1, tempM2, tempM3);
+            this.tasks[i / 4] = new Task(results.get(i), tempM1, tempM2, tempM3);
         }
     }
 
