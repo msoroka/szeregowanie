@@ -51,7 +51,7 @@ public class TaskManager {
             }
         }
 
-        return maxM2 <= minM1 && maxM2 <= minM3;
+        return maxM2 <= minM1 || maxM2 <= minM3;
     }
 
     private void designateN() {
